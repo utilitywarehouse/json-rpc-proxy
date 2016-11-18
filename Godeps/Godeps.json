@@ -1,0 +1,17 @@
+{
+	"ImportPath": "github.com/utilitywarehouse/uw-bill-rpc-handler",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v75",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/handlers",
+			"Comment": "v1.1-12-ge1b2144",
+			"Rev": "e1b2144f2167de0e1042d1d35e5cba5119d4fb5d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Comment": "v1.1-27-g757bef9",
+			"Rev": "757bef944d0f21880861c2dd9c871ca543023cba"
+		}
+	]
+}
