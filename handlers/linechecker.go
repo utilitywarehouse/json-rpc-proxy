@@ -12,23 +12,37 @@ import (
 	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
 )
 
+type incomingBroabdandAvailabilityRequest struct {
+	BuildingName     string
+	BuildingNumber   string
+	PostTown         string
+	Postcode         string
+	Street           string
+	SubBuilding      string
+	Cli              string
+	ProductRequested string
+	Source           string
+}
+
 type broadbandAvailabilityRequest struct {
-	Address struct {
-		BuildingName   string `json:"buildingName"`
-		BuildingNumber string `json:"buildingNumber"`
-		PostTown       string `json:"postTown"`
-		Postcode       string `json:"postcode"`
-		Street         string `json:"street"`
-		SubBuilding    string `json:"subBuilding"`
-	} `json:"address"`
-	Cli              string `json:"cli"`
-	ProductRequested string `json:"productRequested"`
-	Source           string `json:"source"`
+	Address          broabdandAvailabilityRequestAddress `json:"address"`
+	Cli              string                              `json:"cli"`
+	ProductRequested string                              `json:"productRequested"`
+	Source           string                              `json:"source"`
+}
+
+type broabdandAvailabilityRequestAddress struct {
+	BuildingName   string `json:"buildingName"`
+	BuildingNumber string `json:"buildingNumber"`
+	PostTown       string `json:"postTown"`
+	Postcode       string `json:"postcode"`
+	Street         string `json:"street"`
+	SubBuilding    string `json:"subBuilding"`
 }
 
 const route = "getbroadbandavailability"
 
-var broadbandAvailabilityUrl = "http://test.example.com"
+var broadbandAvailabilityURL = "http://test.example.com"
 
 var endpoints = extpoints.Endpoints
 
@@ -41,31 +55,14 @@ func init() {
 }
 
 func handleGetBroadbandAvailability(wr http.ResponseWriter, req *http.Request) {
-	var b []byte
-	buf := bytes.NewBuffer(b)
-	_, err := io.Copy(buf, req.Body)
+
+	buf, err := getServiceRequest(req.Body)
 	if err != nil {
-		http.Error(wr, fmt.Sprintf("error reading request body %+v", err), http.StatusBadRequest)
-		return
+		http.Error(wr, fmt.Sprintf("error converting request to upstream %+v", err), http.StatusBadRequest)
 	}
 
-	var raw interface{}
-	err = json.Unmarshal(buf.Bytes(), &raw)
-	if err != nil {
-		http.Error(wr, fmt.Sprintf("error unmarshalling json: %+v", err), http.StatusBadRequest)
-		return
-	}
-
-	m := raw.(map[string]interface{})
-	var request = new(broadbandAvailabilityRequest)
-	addProperties(request, m)
-	d, err := json.Marshal(request)
-	if err != nil {
-		http.Error(wr, "failed to serialize response", http.StatusInternalServerError)
-	}
-	log.Printf("request: %+v", request)
 	cl := http.Client{}
-	sr, err := cl.Post(broadbandAvailabilityUrl, "application/json", bytes.NewReader(d))
+	sr, err := cl.Post(broadbandAvailabilityURL, "application/json", buf)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error getting response from upstream service %+v", err), http.StatusBadGateway)
 	}
@@ -82,29 +79,35 @@ func handleGetBroadbandAvailability(wr http.ResponseWriter, req *http.Request) {
 
 }
 
-func addProperties(r *broadbandAvailabilityRequest, props map[string]interface{}) {
-	for k, v := range props {
-		log.Printf("key: %s, type: %+v", k, v)
-		switch p := v.(type) {
-		case string:
-			switch k {
-			case "cli":
-				r.Cli = p
-			case "source":
-				r.Source = p
-			case "productRequested":
-				r.ProductRequested = p
-			case "postcode":
-				r.Address.Postcode = p
-			case "buildingName":
-				r.Address.BuildingName = p
-			case "buildingNumber":
-				r.Address.BuildingNumber = p
-			case "street":
-				r.Address.Street = p
-			case "postTown":
-				r.Address.Street = p
-			}
-		}
+func getServiceRequest(body io.ReadCloser) (io.Reader, error) {
+	dec := json.NewDecoder(body)
+	var i incomingBroabdandAvailabilityRequest
+	err := dec.Decode(i)
+	if err != nil {
+		return nil, err
 	}
+
+	out := &broadbandAvailabilityRequest{
+		Cli:              i.Cli,
+		ProductRequested: i.ProductRequested,
+		Source:           i.Source,
+		Address: broabdandAvailabilityRequestAddress{
+			BuildingName:   i.BuildingName,
+			BuildingNumber: i.BuildingNumber,
+			PostTown:       i.PostTown,
+			Postcode:       i.Postcode,
+			Street:         i.Street,
+			SubBuilding:    i.SubBuilding,
+		},
+	}
+
+	buf := bytes.NewBuffer(nil)
+	enc := json.NewEncoder(buf)
+	err = enc.Encode(out)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return buf, nil
 }
