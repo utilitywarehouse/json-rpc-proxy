@@ -25,13 +25,13 @@ type incomingBroabdandAvailabilityRequest struct {
 }
 
 type broadbandAvailabilityRequest struct {
-	Address          broabdandAvailabilityRequestAddress `json:"address"`
+	Address          broadbandAvailabilityRequestAddress `json:"address"`
 	Cli              string                              `json:"cli"`
 	ProductRequested string                              `json:"productRequested"`
 	Source           string                              `json:"source"`
 }
 
-type broabdandAvailabilityRequestAddress struct {
+type broadbandAvailabilityRequestAddress struct {
 	BuildingName   string `json:"buildingName"`
 	BuildingNumber string `json:"buildingNumber"`
 	PostTown       string `json:"postTown"`
@@ -91,7 +91,7 @@ func getServiceRequest(body io.ReadCloser) (io.Reader, error) {
 		Cli:              i.Cli,
 		ProductRequested: i.ProductRequested,
 		Source:           i.Source,
-		Address: broabdandAvailabilityRequestAddress{
+		Address: broadbandAvailabilityRequestAddress{
 			BuildingName:   i.BuildingName,
 			BuildingNumber: i.BuildingNumber,
 			PostTown:       i.PostTown,
