@@ -1,0 +1,6 @@
+{
+	"ImportPath": "github.com/utilitywarehouse/uw-bill-rpc-handler/godeps",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
+	"Deps": []
+}
