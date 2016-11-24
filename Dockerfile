@@ -8,4 +8,4 @@ WORKDIR /app
 
 ADD uw-bill-rpc-handler uw-bill-rpc-handler
 
-CMD uw-bill-rpc-handler
+CMD ./uw-bill-rpc-handler
