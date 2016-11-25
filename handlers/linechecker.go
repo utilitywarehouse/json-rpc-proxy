@@ -7,9 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
-
 	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
+	"os"
 )
 
 type incomingBroabdandAvailabilityRequest struct {
@@ -40,11 +39,21 @@ type broadbandAvailabilityRequestAddress struct {
 	SubBuilding    string `json:"subBuilding"`
 }
 
-const route = "getbroadbandavailability"
+const route = "getbroadbandavailability/max"
 
-var broadbandAvailabilityURL = "http://test.example.com"
+var (
+	broadbandAvailabilityURL = "http://linechecker.telecom.%s.uw.systems/api/broadbandavailability/max"
+	endpoints = extpoints.Endpoints
+	env = envOrPanic()
+)
 
-var endpoints = extpoints.Endpoints
+func envOrPanic() string {
+	env, ok := os.LookupEnv("env")
+	if !ok {
+		log.Panic("Could not find Env in environment variables")
+	}
+	return env
+}
 
 func init() {
 	log.Print("registering linechecker handler")
@@ -62,42 +71,35 @@ func handleGetBroadbandAvailability(wr http.ResponseWriter, req *http.Request) {
 	}
 
 	cl := http.Client{}
-	sr, err := cl.Post(broadbandAvailabilityURL, "application/json", buf)
+	sr, err := cl.Post(fmt.Sprintf(broadbandAvailabilityURL, env), "application/json", buf)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error getting response from upstream service %+v", err), http.StatusBadGateway)
 	}
-
-	responseHeader := wr.Header()
-	for k, v := range sr.Header {
-		responseHeader.Set(k, strings.Join(v, ","))
-	}
-
-	_, err = io.Copy(wr, sr.Body)
+	err = sr.Write(wr)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error writing to response body: %+v", err), http.StatusInternalServerError)
 	}
-
 }
 
 func getServiceRequest(body io.ReadCloser) (io.Reader, error) {
 	dec := json.NewDecoder(body)
-	var i incomingBroabdandAvailabilityRequest
-	err := dec.Decode(i)
+	incomingReq := &incomingBroabdandAvailabilityRequest{}
+	err := dec.Decode(incomingReq)
 	if err != nil {
 		return nil, err
 	}
 
 	out := &broadbandAvailabilityRequest{
-		Cli:              i.Cli,
-		ProductRequested: i.ProductRequested,
-		Source:           i.Source,
+		Cli:              incomingReq.Cli,
+		ProductRequested: incomingReq.ProductRequested,
+		Source:           incomingReq.Source,
 		Address: broadbandAvailabilityRequestAddress{
-			BuildingName:   i.BuildingName,
-			BuildingNumber: i.BuildingNumber,
-			PostTown:       i.PostTown,
-			Postcode:       i.Postcode,
-			Street:         i.Street,
-			SubBuilding:    i.SubBuilding,
+			BuildingName:   incomingReq.BuildingName,
+			BuildingNumber: incomingReq.BuildingNumber,
+			PostTown:       incomingReq.PostTown,
+			Postcode:       incomingReq.Postcode,
+			Street:         incomingReq.Street,
+			SubBuilding:    incomingReq.SubBuilding,
 		},
 	}
 
