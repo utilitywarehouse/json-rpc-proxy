@@ -42,9 +42,18 @@ type broadbandAvailabilityRequestAddress struct {
 const route = "getbroadbandavailability/max"
 
 var (
-	broadbandAvailabilityURL = "http://linechecker.telecom.dev.uw.systems/api/broadbandavailability/max"
+	broadbandAvailabilityURL = "http://linechecker.telecom.%s.uw.systems/api/broadbandavailability/max"
 	endpoints = extpoints.Endpoints
+	env = envOrPanic()
 )
+
+func envOrPanic() string {
+	env, ok := os.LookupEnv("env")
+	if !ok {
+		log.Panic("Could not find Env in environment variables")
+	}
+	return env
+}
 
 func init() {
 	log.Print("registering linechecker handler")
@@ -62,7 +71,7 @@ func handleGetBroadbandAvailability(wr http.ResponseWriter, req *http.Request) {
 	}
 
 	cl := http.Client{}
-	sr, err := cl.Post(broadbandAvailabilityURL, "application/json", buf)
+	sr, err := cl.Post(fmt.Sprintf(broadbandAvailabilityURL, env), "application/json", buf)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error getting response from upstream service %+v", err), http.StatusBadGateway)
 	}
