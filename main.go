@@ -47,7 +47,7 @@ func createInstrumentedHandler(route string, provider http.HandlerFunc, histo *p
 	return func(w http.ResponseWriter, req *http.Request) {
 		now := time.Now()
 		provider.ServeHTTP(w, req)
-		millis := float64(time.Since(now).Nanoseconds() / 1000)
-		histo.WithLabelValues(route).Observe(millis)
+		seconds := float64(time.Since(now).Seconds())
+		histo.WithLabelValues(route).Observe(seconds)
 	}
 }
