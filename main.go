@@ -8,10 +8,10 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
 	_ "github.com/utilitywarehouse/uw-bill-rpc-handler/handlers"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/client_golang/prometheus"
 	"time"
 )
 

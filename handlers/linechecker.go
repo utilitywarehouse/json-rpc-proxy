@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
 	"os"
+	"strings"
 )
 
 type incomingBroabdandAvailabilityRequest struct {
@@ -75,7 +76,12 @@ func handleGetBroadbandAvailability(wr http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error getting response from upstream service %+v", err), http.StatusBadGateway)
 	}
-	err = sr.Write(wr)
+	responseHeader := wr.Header()
+	for k, v := range sr.Header {
+		responseHeader.Set(k, strings.Join(v, ","))
+	}
+
+	_, err = io.Copy(wr, sr.Body)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error writing to response body: %+v", err), http.StatusInternalServerError)
 	}
