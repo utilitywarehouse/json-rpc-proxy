@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/utilitywarehouse/go-operational/op"
 	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
 	_ "github.com/utilitywarehouse/uw-bill-rpc-handler/handlers"
 	"time"
@@ -18,7 +19,17 @@ import (
 var endpoints = extpoints.Endpoints
 
 func main() {
+
+	oph := op.NewHandler(op.NewStatus(
+		"bill-rpc-handler",
+		"Handles outbound flat JSON HTTP calls from Bill, and passes the real work on to a subsequent service").
+		AddOwner("telecoms team", "#telecom").
+		AddLink("github", "https://github.com/utilitywarehouse/uw-bill-rpc-handler").
+		ReadyAlways(),
+	)
+
 	router := mux.NewRouter()
+	router.NewRoute().PathPrefix("/__/").Handler(oph)
 	endpointProviders := endpoints.All()
 
 	log.Printf("handlers: %+v", endpointProviders)
