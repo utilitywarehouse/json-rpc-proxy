@@ -18,6 +18,8 @@ import (
 
 var endpoints = extpoints.Endpoints
 
+var gitHash string
+
 func main() {
 
 	oph := op.NewHandler(op.NewStatus(
@@ -25,6 +27,7 @@ func main() {
 		"Handles outbound flat JSON HTTP calls from Bill, and passes the real work on to a subsequent service").
 		AddOwner("telecoms team", "#telecom").
 		AddLink("github", "https://github.com/utilitywarehouse/uw-bill-rpc-handler").
+		SetRevision(gitHash).
 		ReadyAlways(),
 	)
 
