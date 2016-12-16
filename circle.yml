@@ -24,7 +24,7 @@ dependencies:
 test:
   override:
     - go test -cover -v .
-    - CGO_ENABLED=0 go build -a -ldflags '-s -extldflags "-static" -X main.gitHash=$(git rev-parse HEAD)'
+    - CGO_ENABLED=0 go build -a -ldflags "-s -extldflags \"-static\" -X main.gitHash=$CIRCLE_SHA1"
   post:
     - docker build --rm=true -t utilitywarehouse/uw-bill-rpc-handler:latest .
     - docker tag utilitywarehouse/uw-bill-rpc-handler:latest utilitywarehouse/uw-bill-rpc-handler:$CIRCLE_SHA1
