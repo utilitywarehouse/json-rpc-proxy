@@ -7,8 +7,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
 	"os"
+
+	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
 )
 
 type incomingBroabdandAvailabilityRequest struct {
@@ -42,9 +43,9 @@ type broadbandAvailabilityRequestAddress struct {
 const route = "getbroadbandavailability/max"
 
 var (
-	broadbandAvailabilityURL = "http://linechecker.telecom.%s.uw.systems/api/broadbandavailability/max"
-	endpoints = extpoints.Endpoints
-	env = envOrPanic()
+	broadbandAvailabilityURL = "http://linechecker-telecom.%s.uw.systems/api/broadbandavailability/max"
+	endpoints                = extpoints.Endpoints
+	env                      = envOrPanic()
 )
 
 func envOrPanic() string {
