@@ -1,13 +1,14 @@
-# UW Bill RPC Handler
+# JSON RPC Proxy
 
-This application sits between Bill and various internal and external services.
+This application sits between an application and various internal and external
+services.
 
-Requests are made to this service from Bill and in turn this service executes requests 
-on Bill's behalf. It performs flattening of response objects to make data
- easier to manipulate and handle in Equinox.
+Requests are made to this service from the client application and in turn this
+service executes requests on the clients' behalf. It performs flattening of
+response objects to make data easier to manipulate and handle applications that
+have trouble with non flat JSON structures.
 
-## Installation
-`go get github.com/utilitywarehouse/uw-bill-rpc-handler`
+## Installation `go get github.com/utilitywarehouse/json-rpc-proxy`
   
 ## Build
 

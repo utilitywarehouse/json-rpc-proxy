@@ -1,8 +1,16 @@
 {
-	"ImportPath": "github.com/utilitywarehouse/uw-bill-rpc-handler",
+	"ImportPath": "github.com/utilitywarehouse/json-rpc-proxy",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v75",
 	"Deps": [
+		{
+			"ImportPath": "github.com/beorn7/perks/quantile",
+			"Rev": "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "8ee79997227bf9b34611aee7946ae64735e6fd93"
+		},
 		{
 			"ImportPath": "github.com/gorilla/handlers",
 			"Comment": "v1.1-12-ge1b2144",
@@ -12,6 +20,54 @@
 			"ImportPath": "github.com/gorilla/mux",
 			"Comment": "v1.1-27-g757bef9",
 			"Rev": "757bef944d0f21880861c2dd9c871ca543023cba"
+		},
+		{
+			"ImportPath": "github.com/matttproud/golang_protobuf_extensions/pbutil",
+			"Comment": "v1.0.0-2-gc12348c",
+			"Rev": "c12348ce28de40eed0136aa2b644d0ee0650e56c"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/prometheus",
+			"Comment": "v0.8.0-42-g575f371",
+			"Rev": "575f371f7862609249a1be4c9145f429fe065e32"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_golang/prometheus/promhttp",
+			"Comment": "v0.8.0-42-g575f371",
+			"Rev": "575f371f7862609249a1be4c9145f429fe065e32"
+		},
+		{
+			"ImportPath": "github.com/prometheus/client_model/go",
+			"Comment": "model-0.0.2-12-gfa8ad6f",
+			"Rev": "fa8ad6fec33561be4280a8f0514318c79d7f6cb6"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/expfmt",
+			"Rev": "195bde7883f7c39ea62b0d92ab7359b5327065cb"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
+			"Rev": "195bde7883f7c39ea62b0d92ab7359b5327065cb"
+		},
+		{
+			"ImportPath": "github.com/prometheus/common/model",
+			"Rev": "195bde7883f7c39ea62b0d92ab7359b5327065cb"
+		},
+		{
+			"ImportPath": "github.com/prometheus/procfs",
+			"Rev": "fcdb11ccb4389efb1b210b7ffb623ab71c5fdd60"
+		},
+		{
+			"ImportPath": "github.com/utilitywarehouse/go-operational/op",
+			"Rev": "11d646153d8357d3c1e8eccd17c4ea480bd5ab39"
+		},
+		{
+			"ImportPath": "github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints",
+			"Rev": "8609ade7fb54548b3f50b4f0b2a98cb0125ac4fb"
+		},
+		{
+			"ImportPath": "github.com/utilitywarehouse/uw-bill-rpc-handler/handlers",
+			"Rev": "8609ade7fb54548b3f50b4f0b2a98cb0125ac4fb"
 		}
 	]
 }
