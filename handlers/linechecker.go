@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
+	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
 )
 
 type incomingBroabdandAvailabilityRequest struct {
