@@ -28,4 +28,4 @@ _testmain.go
 
 # external packages folder
 vendor/
-uw-bill-rpc-handler
+json-rpc-proxy
