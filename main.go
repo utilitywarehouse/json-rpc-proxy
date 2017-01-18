@@ -5,15 +5,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/utilitywarehouse/go-operational/op"
-	"github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints"
-	_ "github.com/utilitywarehouse/uw-bill-rpc-handler/handlers"
-	"time"
+	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
+	_ "github.com/utilitywarehouse/json-rpc-proxy/handlers"
 )
 
 var endpoints = extpoints.Endpoints
@@ -51,8 +51,7 @@ func main() {
 	}
 
 	router.Handle("/metrics", promhttp.Handler())
-
-	log.Printf("router: %+v", router)
+	log.Printf("router: %#v", router)
 	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 	log.Fatal(http.ListenAndServe(":8000", loggedRouter))
 }
