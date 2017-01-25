@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	acsApiHostname = "cpe-configurations-api.%s.uw.systems"
+	acsApiHostname = "https://cpe-configurations-api.%s.uw.systems"
 	acsClient      = acs_client.NewInstrumentedApiClient(acs_client.NewHttpApiClient(fmt.Sprintf(acsApiHostname, env)))
 )
 
