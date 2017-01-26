@@ -43,7 +43,7 @@ type broadbandAvailabilityRequestAddress struct {
 const route = "getbroadbandavailability/max"
 
 var (
-	broadbandAvailabilityURL = "http://linechecker-telecom.%s.uw.systems/api/broadbandavailability/max"
+	broadbandAvailabilityURL = "https://linechecker-telecom.%s.uw.systems/api/broadbandavailability/max"
 	endpoints                = extpoints.Endpoints
 	env                      = envOrPanic()
 )
@@ -51,7 +51,7 @@ var (
 func envOrPanic() string {
 	env, ok := os.LookupEnv("env")
 	if !ok {
-		log.Panic("Could not find Env in environment variables")
+		log.Panic("Could not find env in environment variables")
 	}
 	return env
 }
