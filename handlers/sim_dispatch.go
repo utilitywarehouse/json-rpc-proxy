@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -18,13 +17,19 @@ const (
 	kafkaTopic        = "OutboundBillSimRequestEvents"
 )
 
-type SimDispatchRequestedEvent struct {
-	AccountId                 string `json:"accountId"`
-	Destination               string `json:"destination"`
-	CLI                       string `json:"cli"`
-	DispatchAt                string `json:"dispatchAt"`
-	YearOfBirth               int    `json:"yearOfBirth"`
+type SimDispatchRequested struct {
+	AccountId          string    `json:"accountId"`
+	DestinationAddress string    `json:"destinationAddress"`
+	Cli                string    `json:"cli"`
+	OldSimNumber       string    `json:"oldSimNumber"`
+	IvrFields          IvrFields `json:"ivrFields"`
+}
+
+type IvrFields struct {
 	BankAccountLastFourDigits string `json:"bankAccountLastFourDigits"`
+	MobSecurity               string `json:"mobSecurity"`
+	DateOfBirth1              string `json:"dateOfBirth1"`
+	DateOfBirth2              string `json:"dateOfBirth2"`
 }
 
 func init() {
@@ -42,13 +47,9 @@ func handleSimDispatchRequest(wr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	simDispatchRequestedEvent, err := getSimDispatchRequestedEvent(requestBody)
-	if err != nil {
-		http.Error(wr, err.Error(), http.StatusBadRequest)
-		return
-	}
+	simDispatchRequested := getSimDispatchRequested(requestBody)
 
-	jsonBytes, err := json.Marshal(simDispatchRequestedEvent)
+	jsonBytes, err := json.Marshal(simDispatchRequested)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error encoding SimDispatchRequestedEvent %+v", err), http.StatusInternalServerError)
 		return
@@ -61,25 +62,26 @@ func handleSimDispatchRequest(wr http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func getSimDispatchRequestedEvent(requestBody []byte) (*SimDispatchRequestedEvent, error) {
+func getSimDispatchRequested(requestBody []byte) *SimDispatchRequested {
 	requestBodyString := string(requestBody)
-	split := strings.Split(requestBodyString, ",")
+	fields := strings.Split(requestBodyString, ",")
 
-	yearOfBirth, err := strconv.Atoi(split[4])
-	if err != nil {
-		return nil, fmt.Errorf("error parsing int from year of birth %v", err)
+	ivrFields := &IvrFields{
+		BankAccountLastFourDigits: fields[4],
+		MobSecurity:               fields[5],
+		DateOfBirth1:              fields[6],
+		DateOfBirth2:              fields[7],
 	}
 
-	simDispatchRequestedEvent := &SimDispatchRequestedEvent{
-		AccountId:                 split[0],
-		Destination:               split[1],
-		CLI:                       split[2],
-		DispatchAt:                split[3],
-		YearOfBirth:               yearOfBirth,
-		BankAccountLastFourDigits: split[5],
+	simDispatchRequested := &SimDispatchRequested{
+		AccountId:          fields[0],
+		DestinationAddress: fields[1],
+		Cli:                fields[2],
+		OldSimNumber:       fields[3],
+		IvrFields:          *ivrFields,
 	}
 
-	return simDispatchRequestedEvent, err
+	return simDispatchRequested
 }
 
 func produceSimDispatchRequestedEvent(payload []byte) error {
