@@ -1,18 +1,22 @@
 package handlers
 
 import (
-	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
-	"log"
-	"net/http"
-	"fmt"
-	"io/ioutil"
-	"strings"
-	"strconv"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
 )
 
-const simDispatchRoute = "simdispatch"
+const (
+	simDispatchRoute  = "simdispatch"
+	kafkaProducerHost = "http-kafka-producer:8080"
+	kafkaTopic        = "OutboundBillSimRequestEvents"
+)
 
 type SimDispatchRequestedEvent struct {
 	AccountId                 string `json:"accountId"`
@@ -80,7 +84,11 @@ func getSimDispatchRequestedEvent(requestBody []byte) (*SimDispatchRequestedEven
 
 func produceSimDispatchRequestedEvent(payload []byte) error {
 	httpClient := http.Client{}
-	producerResponse, err := httpClient.Post("http://localhost:8080/produce/testtopic", "application/json", bytes.NewReader(payload))
+	producerResponse, err := httpClient.Post(
+		fmt.Sprintf("http://%s/produce/%s", kafkaProducerHost, kafkaTopic),
+		"application/json",
+		bytes.NewReader(payload),
+	)
 	if err != nil {
 		return fmt.Errorf("error getting response from kafka producer %v", err)
 	}
