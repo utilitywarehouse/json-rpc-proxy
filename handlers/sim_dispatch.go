@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 )
 
 const (
@@ -16,6 +15,17 @@ const (
 	kafkaProducerHost = "http-kafka-producer:80"
 	kafkaTopic        = "OutboundBillSimRequestEvents"
 )
+
+type IncomingSimDispatchRequest struct {
+	AccountId                 string `json:"accountId"`
+	DestinationAddress        string `json:"destinationAddress"`
+	Cli                       string `json:"cli"`
+	OldSimNumber              string `json:"oldSimNumber"`
+	BankAccountLastFourDigits string `json:"bankAccountLastFourDigits"`
+	MobSecurity               string `json:"mobSecurity"`
+	DateOfBirth1              string `json:"dateOfBirth1"`
+	DateOfBirth2              string `json:"dateOfBirth2"`
+}
 
 type SimDispatchRequested struct {
 	AccountId          string    `json:"accountId"`
@@ -47,7 +57,11 @@ func handleSimDispatchRequest(wr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	simDispatchRequested := getSimDispatchRequested(requestBody)
+	simDispatchRequested, err := getSimDispatchRequested(requestBody)
+	if err != nil {
+		http.Error(wr, fmt.Sprintf("error generating SimDispatchRequestedEvent %v", err), http.StatusBadRequest)
+		return
+	}
 
 	jsonBytes, err := json.Marshal(simDispatchRequested)
 	if err != nil {
@@ -62,26 +76,29 @@ func handleSimDispatchRequest(wr http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func getSimDispatchRequested(requestBody []byte) *SimDispatchRequested {
-	requestBodyString := string(requestBody)
-	fields := strings.Split(requestBodyString, ",")
+func getSimDispatchRequested(requestBody []byte) (*SimDispatchRequested, error) {
+	incomingSimDispatchRequest := &IncomingSimDispatchRequest{}
+	err := json.Unmarshal(requestBody, incomingSimDispatchRequest)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling IncomingSimDispatchRequest %v", err)
+	}
 
 	ivrFields := &IvrFields{
-		BankAccountLastFourDigits: fields[4],
-		MobSecurity:               fields[5],
-		DateOfBirth1:              fields[6],
-		DateOfBirth2:              fields[7],
+		BankAccountLastFourDigits: incomingSimDispatchRequest.BankAccountLastFourDigits,
+		MobSecurity:               incomingSimDispatchRequest.MobSecurity,
+		DateOfBirth1:              incomingSimDispatchRequest.DateOfBirth1,
+		DateOfBirth2:              incomingSimDispatchRequest.DateOfBirth2,
 	}
 
 	simDispatchRequested := &SimDispatchRequested{
-		AccountId:          fields[0],
-		DestinationAddress: fields[1],
-		Cli:                fields[2],
-		OldSimNumber:       fields[3],
+		AccountId:          incomingSimDispatchRequest.AccountId,
+		DestinationAddress: incomingSimDispatchRequest.DestinationAddress,
+		Cli:                incomingSimDispatchRequest.Cli,
+		OldSimNumber:       incomingSimDispatchRequest.OldSimNumber,
 		IvrFields:          *ivrFields,
 	}
 
-	return simDispatchRequested
+	return simDispatchRequested, nil
 }
 
 func produceSimDispatchRequestedEvent(payload []byte) error {
