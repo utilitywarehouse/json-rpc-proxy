@@ -14,7 +14,7 @@ import (
 
 const (
 	simDispatchRoute  = "simdispatch"
-	kafkaProducerHost = "http-kafka-producer:8080"
+	kafkaProducerHost = "http-kafka-producer:80"
 	kafkaTopic        = "OutboundBillSimRequestEvents"
 )
 
