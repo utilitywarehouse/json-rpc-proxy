@@ -1,11 +1,16 @@
 {
 	"ImportPath": "github.com/utilitywarehouse/json-rpc-proxy",
-	"GoVersion": "go1.7",
-	"GodepVersion": "v75",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
 	"Deps": [
 		{
 			"ImportPath": "github.com/beorn7/perks/quantile",
 			"Rev": "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
+		},
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.0",
+			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
 		},
 		{
 			"ImportPath": "github.com/golang/protobuf/proto",
@@ -58,16 +63,20 @@
 			"Rev": "fcdb11ccb4389efb1b210b7ffb623ab71c5fdd60"
 		},
 		{
+			"ImportPath": "github.com/utilitywarehouse/acs-api/client",
+			"Rev": "ea4f669c1fc56b231a2c57bdef46ffbcbac49f9f"
+		},
+		{
+			"ImportPath": "github.com/utilitywarehouse/acs-api/model",
+			"Rev": "ea4f669c1fc56b231a2c57bdef46ffbcbac49f9f"
+		},
+		{
 			"ImportPath": "github.com/utilitywarehouse/go-operational/op",
 			"Rev": "11d646153d8357d3c1e8eccd17c4ea480bd5ab39"
 		},
 		{
-			"ImportPath": "github.com/utilitywarehouse/uw-bill-rpc-handler/extpoints",
-			"Rev": "8609ade7fb54548b3f50b4f0b2a98cb0125ac4fb"
-		},
-		{
-			"ImportPath": "github.com/utilitywarehouse/uw-bill-rpc-handler/handlers",
-			"Rev": "8609ade7fb54548b3f50b4f0b2a98cb0125ac4fb"
+			"ImportPath": "github.com/utilitywarehouse/sim-dispatch-api/events",
+			"Rev": "9534651d3c0c4576c86565177b8244ef3a66ecfe"
 		}
 	]
 }

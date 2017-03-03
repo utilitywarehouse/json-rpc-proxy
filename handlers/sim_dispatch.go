@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
+	"github.com/utilitywarehouse/sim-dispatch-api/events"
 )
 
 const (
@@ -21,21 +23,6 @@ type IncomingSimDispatchRequest struct {
 	DestinationAddress        string `json:"destinationAddress"`
 	Cli                       string `json:"cli"`
 	OldSimNumber              string `json:"oldSimNumber"`
-	BankAccountLastFourDigits string `json:"bankAccountLastFourDigits"`
-	MobSecurity               string `json:"mobSecurity"`
-	DateOfBirth1              string `json:"dateOfBirth1"`
-	DateOfBirth2              string `json:"dateOfBirth2"`
-}
-
-type SimDispatchRequested struct {
-	AccountId          string    `json:"accountId"`
-	DestinationAddress string    `json:"destinationAddress"`
-	Cli                string    `json:"cli"`
-	OldSimNumber       string    `json:"oldSimNumber"`
-	IvrFields          IvrFields `json:"ivrFields"`
-}
-
-type IvrFields struct {
 	BankAccountLastFourDigits string `json:"bankAccountLastFourDigits"`
 	MobSecurity               string `json:"mobSecurity"`
 	DateOfBirth1              string `json:"dateOfBirth1"`
@@ -76,21 +63,21 @@ func handleSimDispatchRequest(wr http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func getSimDispatchRequested(requestBody []byte) (*SimDispatchRequested, error) {
+func getSimDispatchRequested(requestBody []byte) (*events.SimDispatchRequested, error) {
 	incomingSimDispatchRequest := &IncomingSimDispatchRequest{}
 	err := json.Unmarshal(requestBody, incomingSimDispatchRequest)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling IncomingSimDispatchRequest %v", err)
 	}
 
-	ivrFields := &IvrFields{
+	ivrFields := &events.IvrFields{
 		BankAccountLastFourDigits: incomingSimDispatchRequest.BankAccountLastFourDigits,
 		MobSecurity:               incomingSimDispatchRequest.MobSecurity,
 		DateOfBirth1:              incomingSimDispatchRequest.DateOfBirth1,
 		DateOfBirth2:              incomingSimDispatchRequest.DateOfBirth2,
 	}
 
-	simDispatchRequested := &SimDispatchRequested{
+	simDispatchRequested := &events.SimDispatchRequested{
 		AccountId:          incomingSimDispatchRequest.AccountId,
 		DestinationAddress: incomingSimDispatchRequest.DestinationAddress,
 		Cli:                incomingSimDispatchRequest.Cli,
