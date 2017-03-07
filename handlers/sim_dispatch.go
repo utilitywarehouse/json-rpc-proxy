@@ -8,8 +8,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
-	"github.com/utilitywarehouse/sim-dispatch-api/events"
+	"github.com/utilitywarehouse/sim-dispatch-api/contracts"
 )
 
 const (
@@ -19,6 +21,7 @@ const (
 )
 
 type IncomingSimDispatchRequest struct {
+	CorrelationToken          string `json:"correlationToken"`
 	AccountId                 string `json:"accountId"`
 	DestinationAddress        string `json:"destinationAddress"`
 	Cli                       string `json:"cli"`
@@ -44,55 +47,64 @@ func handleSimDispatchRequest(wr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	simDispatchRequested, err := getSimDispatchRequested(requestBody)
+	event, err := getSimDispatchRequested(requestBody)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error generating SimDispatchRequestedEvent %v", err), http.StatusBadRequest)
 		return
 	}
 
-	jsonBytes, err := json.Marshal(simDispatchRequested)
+	buf, err := proto.Marshal(event)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error encoding SimDispatchRequestedEvent %+v", err), http.StatusInternalServerError)
 		return
 	}
 
-	err = produceSimDispatchRequestedEvent(jsonBytes)
+	err = produceSimDispatchRequestedEvent(buf)
 	if err != nil {
 		http.Error(wr, err.Error(), http.StatusBadGateway)
 		return
 	}
 }
 
-func getSimDispatchRequested(requestBody []byte) (*events.SimDispatchRequested, error) {
+func getSimDispatchRequested(requestBody []byte) (*contracts.Event, error) {
 	incomingSimDispatchRequest := &IncomingSimDispatchRequest{}
 	err := json.Unmarshal(requestBody, incomingSimDispatchRequest)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling IncomingSimDispatchRequest %v", err)
 	}
 
-	ivrFields := &events.IvrFields{
+	ivrData := &contracts.IvrData{
 		BankAccountLastFourDigits: incomingSimDispatchRequest.BankAccountLastFourDigits,
 		MobSecurity:               incomingSimDispatchRequest.MobSecurity,
 		DateOfBirth1:              incomingSimDispatchRequest.DateOfBirth1,
 		DateOfBirth2:              incomingSimDispatchRequest.DateOfBirth2,
 	}
 
-	simDispatchRequested := &events.SimDispatchRequested{
+	dr := &contracts.SimDispatchRequested{
 		AccountId:          incomingSimDispatchRequest.AccountId,
 		DestinationAddress: incomingSimDispatchRequest.DestinationAddress,
 		Cli:                incomingSimDispatchRequest.Cli,
 		OldSimNumber:       incomingSimDispatchRequest.OldSimNumber,
-		IvrFields:          *ivrFields,
+		IvrFields:          ivrData,
 	}
 
-	return simDispatchRequested, nil
+	payload, err := ptypes.MarshalAny(dr)
+	if err != nil {
+		return nil, err
+	}
+	ev := &contracts.Event{
+		CorrelationToken: incomingSimDispatchRequest.CorrelationToken,
+		Payload:          payload,
+		Version:          "1", // will need to move into contracts
+	}
+	return ev, nil
 }
 
 func produceSimDispatchRequestedEvent(payload []byte) error {
 	httpClient := http.Client{}
 	producerResponse, err := httpClient.Post(
 		fmt.Sprintf("http://%s/produce/%s", kafkaProducerHost, kafkaTopic),
-		"application/json",
+		"application/octet-stream",
 		bytes.NewReader(payload),
 	)
 	if err != nil {
