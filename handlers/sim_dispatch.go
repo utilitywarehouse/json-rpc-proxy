@@ -47,6 +47,8 @@ func handleSimDispatchRequest(wr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	log.Printf("Processing sim dispatch request: %s", requestBody)
+
 	event, err := getSimDispatchRequested(requestBody)
 	if err != nil {
 		http.Error(wr, fmt.Sprintf("error generating SimDispatchRequestedEvent %v", err), http.StatusBadRequest)
