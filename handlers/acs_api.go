@@ -9,8 +9,8 @@ import (
 	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/utilitywarehouse/acs-api/client"
-	acs "github.com/utilitywarehouse/acs-api/model"
+	"github.com/utilitywarehouse/cpe-configurations-api/client"
+	acs "github.com/utilitywarehouse/cpe-configurations-api/model"
 	"github.com/utilitywarehouse/json-rpc-proxy/extpoints"
 )
 
