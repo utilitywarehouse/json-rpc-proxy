@@ -2,14 +2,15 @@ machine:
   services:
     - docker
   environment:
-    GODIST: "go1.7.3.linux-amd64.tar.gz"
     GOOS: "linux"
     GOARCH: "amd64"
+    GODIST: "go1.8.linux-amd64.tar.gz"
+    IMPORT_PATH: "github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
   post:
-    - mkdir -p download
-    - test -e download/$GODIST || curl -o download/$GODIST https://storage.googleapis.com/golang/$GODIST
+    - mkdir -p "~/download"
+    - test -e "~/download/$GODIST" || curl -o "~/download/$GODIST" https://storage.googleapis.com/golang/$GODIST
     - sudo rm -rf /usr/local/go
-    - sudo tar -C /usr/local -xzf download/$GODIST
+    - sudo tar -C /usr/local -xzf "~/download/$GODIST"
 
 
 general:
@@ -19,13 +20,13 @@ general:
 
 dependencies:
   pre:
-    - docker login -e ${DOCKER_EMAIL} -u ${DOCKER_USER} -p ${DOCKER_PASS}
+    - docker login -e none@none.com -u ${DOCKER_USER} -p ${DOCKER_PASS} registry.uw.systems
 
 test:
   override:
     - go test -cover -v .
     - CGO_ENABLED=0 go build -a -ldflags "-s -extldflags \"-static\" -X main.gitHash=$CIRCLE_SHA1"
   post:
-    - docker build --rm=true -t utilitywarehouse/uw-bill-rpc-handler:latest .
-    - docker tag utilitywarehouse/uw-bill-rpc-handler:latest utilitywarehouse/uw-bill-rpc-handler:$CIRCLE_SHA1
-    - docker push utilitywarehouse/uw-bill-rpc-handler
+    - docker build --rm=true -t registry.uw.systems/telecom/uw-bill-rpc-handler:latest .
+    - docker tag registry.uw.systems/telecom/uw-bill-rpc-handler:latest registry.uw.systems/telecom/uw-bill-rpc-handler:$CIRCLE_SHA1
+    - docker push registry.uw.systems/telecom/uw-bill-rpc-handler

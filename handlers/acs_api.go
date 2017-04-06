@@ -22,7 +22,7 @@ const (
 
 var (
 	acsApiHostname = "cpe-configurations-api.%s.uw.systems"
-	acsClient      = acs_client.NewInstrumentedApiClient(acs_client.NewHttpApiClient(fmt.Sprintf(acsApiHostname, env)))
+	acsClient      = cpeConfClient.NewInstrumentedApiClient(cpeConfClient.NewHttpApiClient(fmt.Sprintf(acsApiHostname, env)))
 )
 
 func init() {
